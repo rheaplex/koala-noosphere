@@ -1,0 +1,229 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '() :silent t)
+  (ql:quickload :cl-intbytes :silent t)
+  )
+
+(defpackage :ros.script.gen-descriptions.3860860112
+  (:use :cl))
+(in-package :ros.script.gen-descriptions.3860860112)
+
+(defconstant +rng-filepath+
+  ;;"/dev/urandom"
+  "/dev/TrueRNG0"
+  )
+
+(defconstant +series-name+ "Koala Noosphere")
+(defconstant +series-date+ "2022"
+(defconstant +series-artist+ "Rhea Myers")
+
+(defconstant +num-tokens+ 16)
+
+(defconstant +id-length-bytes+ 32)
+
+(defconstant +significant-bytes+
+  (coerce
+   (loop for n from 1 upto +id-length-bytes+
+         collect n)
+   'vector))
+
+(defconstant +qualifiers+
+  (coerce
+   '(
+     "is"
+     "is maybe"
+     "is definitely"
+     "is perhaps"
+     "may be"
+     "might be"
+     "could be"
+     "might be"
+     "looks"
+     "looks as if it is"
+     "looks like it is"
+     "seems"
+     "seems to be"
+     "appears"
+     "appears to be"
+     )
+   'vector))
+
+(defconstant +properties+
+  (coerce
+   '(
+     "red" "green" "blue" "yellow" "orange" "purple" "magenta" "cyan"
+     "dark" "light" "bright" "saturated"
+     "biomorphic" "mechanistic" "rectilinear"
+     "spiky" "smooth"
+     "simple" "complex"
+     "colourful" "muted" "monochrome"
+     "convex" "concave"
+     "varied" "homogenous" "all-over"
+     "three dimensional" "two dimensional"
+     "expressive" "diagrammatic"
+     "ironic" "serious" "transgressive"
+     "formal"
+     "cute" "zany" "interesting"
+     "large" "small"
+     "tall" "short"
+     "wide" "narrow"
+     "shallow" "deep"
+     )
+   'vector))
+  
+(defconstant +property-relations+
+  (coerce
+   '(
+     ("more" "than")
+     ("less" "than")
+     ("almost as" "as")
+     #|"almost indistinguishably"
+     "complementarily" "oppositely"
+     "differently"|#
+     )
+   'vector))
+
+(defconstant +neighbours+
+  (coerce
+   '(
+     "the token"
+     "a token"
+     "no tokens"
+     "none of the tokens"
+     "almost no tokens"
+     "almost none of the tokens"
+     "very few tokens"
+     "a few tokens"
+     "not very many tokens"
+     "some tokens"
+     "many tokens"
+     "very many tokens"
+     "almost all the tokens immediately"
+     "the token that is closest"
+     )
+   'vector))
+
+(defconstant +spatio-temporal-relations+
+  (coerce
+   '(
+     "above"
+     "below"
+     "left of"
+     "to the left of"
+     "right of"
+     "to the right of"
+     "behind"
+     "in front"
+     "next to"
+     "adjacant to"
+     "near to"
+     "far from"
+     "close to"
+     "before"
+     "after"
+     "following"
+     "trailing"
+     )
+   'vector))
+
+(defconstant +subjects+
+  (coerce
+   '(
+     "it"
+     "it"
+     "it"
+     "its centre"
+     "its focal point"
+     "its narrowest part"
+     "its widest part"
+     "its base"
+     "its top"
+     "its brightest part"
+     "its darkest part"
+     )
+   'vector))
+
+(defvar *descriptions* (make-hash-table))
+
+(defun ent (significant-bytes)
+  (let ((random-bytes (make-array +id-length-bytes+
+                              :element-type '(unsigned-byte 8)
+                              :initial-element 0)))
+    (with-open-file (rng +rng-filepath+
+                         :element-type 'unsigned-byte)
+      (read-sequence random-bytes rng))
+    (intbytes:octets->uint random-bytes significant-bytes)))
+
+;; This suffers from skew, revisit.
+(defun ent-random-int (exclusive-upper-range)
+  (mod (ent 4) exclusive-upper-range))
+
+(defun random-choice (choices)
+  (aref choices (ent-random-int (length choices))))
+
+(defun ent-random-significant-bytes ()
+  (ent (random-choice +significant-bytes+)))
+
+(defun gather-token-ids ()
+  ;; Use a hash-table to represent a set to avoid duplicate tokens
+  (let ((id-set (make-hash-table :test 'equalp)))
+    (loop while (< (hash-table-count id-set) +num-tokens+)
+          do (setf (gethash (ent-random-significant-bytes) id-set)
+                   t))
+    ;; Gather up and return the keys
+    (loop for key being the hash-keys of id-set
+          collect key)))
+
+(defun generate-description-sentence ()
+  (destructuring-bind
+        (property-relation property-relation-comparator)
+      (random-choice +property-relations+)
+    ;; ~@:( capitalizes the first word only.
+    ;; ~^  adds the space only between elements.
+    (format nil "~{~a~^ ~}"
+            (list
+             (random-choice +qualifiers+)
+             property-relation
+             (random-choice +properties+)
+             property-relation-comparator
+             (random-choice +neighbours+)
+             (random-choice +spatio-temporal-relations+)
+             (random-choice +subjects+)))))
+
+(defun generate-description (token-id count)
+  ;; Use a hash-table to represent a set to avoid duplicate descriptions
+  (let ((description-set (make-hash-table :test 'equal)))
+    (loop while (< (hash-table-count description-set) count)
+          do (setf (gethash (generate-description-sentence)
+                            description-set)
+                   t))
+    ;; Gather up the keys and format them into the description
+    (format nil
+            ;; https://gigamonkeys.com/book/a-few-format-recipes.html
+            "~a token ~a (~a) by ~a ~{~#[~;~a~;~a and ~a~:;~@{~a~#[~;, and ~:;, ~]~}~]~}."
+            +series-name+
+            token-id
+            +series-date+
+            +series-artist+
+            (loop for key being the hash-keys of description-set
+                  collect key))))
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (let ((token-ids (gather-token-ids)))
+    (format t "~{~a~%~}" token-ids)
+    (loop for token-id in token-ids
+          do (with-open-file (description-stream (format
+                                                  nil
+                                                  "descriptions/~a"
+                                                  token-id)
+                                                 :direction :output)
+               (prin1 (generate-description token-id 10)
+                      description-stream)))))
+;;; vim: set ft=lisp lisp:

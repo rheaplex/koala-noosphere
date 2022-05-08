@@ -1,0 +1,49 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '() :silent t)
+  (ql:quickload :cl-intbytes :silent t)
+  )
+
+(defpackage :ros.script.gen-metadata.3860860112
+  (:use :cl))
+(in-package :ros.script.gen-metadata.3860860112)
+
+(defconstant +series-name+ "Koala Noosphere")
+(defconstant +series-date+ "2022"
+(defconstant +series-artist+ "Rhea Myers")
+
+(defun generate-metadata (description-path ipfs-image-dir)
+  (let ((token-id (file-namestring description-path))
+        (description (with-open-file (description-stream description-path)
+                       (read description-stream))))
+    (with-open-file (metadata-stream (format nil "metadata/~a" token-id)
+                                     :direction :output)
+      (format metadata-stream
+              "\{
+  \"title\": \"~a token ~a (~a) by ~a.\",
+  \"image\": \"ipfs://~a/~a.png\",
+  \"description\": \"~a\"
+\}
+"
+              +series-name+
+              token-id
+              +series-year+
+              +series-artist+
+              ipfs-image-dir
+              token-id
+              description))))
+
+(defun main (&rest argv)
+  (let ((ipfs-image-dir (car argv))
+        (description-paths (directory "descriptions/*")))
+    (check-type ipfs-image-dir string)
+    (format t "~a~%" description-paths)
+    (loop for description-path in description-paths
+          do (generate-metadata description-path ipfs-image-dir))))
+;;; vim: set ft=lisp lisp:
