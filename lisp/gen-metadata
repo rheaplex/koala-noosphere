@@ -10,40 +10,39 @@ exec ros -Q -- $0 "$@"
   (ql:quickload :cl-intbytes :silent t)
   )
 
-(defpackage :ros.script.gen-metadata.3860860112
+(defpackage :art.rhea.koala-noosphere.gen-metadata
   (:use :cl))
-(in-package :ros.script.gen-metadata.3860860112)
+(in-package :art.rhea.koala-noosphere.gen-metadata)
 
 (defconstant +series-name+ "Koala Noosphere")
-(defconstant +series-date+ "2022"
+(defconstant +series-date+ "2022")
 (defconstant +series-artist+ "Rhea Myers")
 
-(defun generate-metadata (description-path ipfs-image-dir)
-  (let ((token-id (file-namestring description-path))
-        (description (with-open-file (description-stream description-path)
+(defun generate-metadata (json-template token-id ipfs-image-dir)
+  (let ((description (with-open-file (description-stream
+                                      (format nil "descriptions/~a" token-id))
                        (read description-stream))))
     (with-open-file (metadata-stream (format nil "metadata/~a" token-id)
                                      :direction :output)
       (format metadata-stream
-              "\{
-  \"title\": \"~a token ~a (~a) by ~a.\",
-  \"image\": \"ipfs://~a/~a.png\",
-  \"description\": \"~a\"
-\}
-"
+              json-template
               +series-name+
               token-id
-              +series-year+
-              +series-artist+
+              ;;+series-date+
+              ;;+series-artist+
+              description
               ipfs-image-dir
-              token-id
-              description))))
+              token-id))))
 
 (defun main (&rest argv)
   (let ((ipfs-image-dir (car argv))
-        (description-paths (directory "descriptions/*")))
+        (token-ids (with-open-file (ids-stream "token-ids")
+                     (read ids-stream)))
+        (json-template (uiop:read-file-string "templates/metadata.json")))
     (check-type ipfs-image-dir string)
-    (format t "~a~%" description-paths)
-    (loop for description-path in description-paths
-          do (generate-metadata description-path ipfs-image-dir))))
+    (ensure-directories-exist "metadata/")
+    (loop for token-id in token-ids
+          do (generate-metadata json-template
+                                token-id
+                                ipfs-image-dir))))
 ;;; vim: set ft=lisp lisp:

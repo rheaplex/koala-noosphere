@@ -10,17 +10,17 @@ exec ros -Q -- $0 "$@"
   (ql:quickload :cl-intbytes :silent t)
   )
 
-(defpackage :ros.script.gen-descriptions.3860860112
+(defpackage :art.rhea.koala-noosphere.gen-descriptions
   (:use :cl))
-(in-package :ros.script.gen-descriptions.3860860112)
+(in-package :art.rhea.koala-noosphere.gen-descriptions)
 
 (defconstant +rng-filepath+
-  ;;"/dev/urandom"
-  "/dev/TrueRNG0"
+  "/dev/urandom"
+  ;;"/dev/TrueRNG0"
   )
 
 (defconstant +series-name+ "Koala Noosphere")
-(defconstant +series-date+ "2022"
+(defconstant +series-date+ "2022")
 (defconstant +series-artist+ "Rhea Myers")
 
 (defconstant +num-tokens+ 16)
@@ -198,12 +198,14 @@ exec ros -Q -- $0 "$@"
 
 (defun generate-description (token-id count)
   ;; Use a hash-table to represent a set to avoid duplicate descriptions
+  ;; FIXME: also reproduce this at the description level
   (let ((description-set (make-hash-table :test 'equal)))
     (loop while (< (hash-table-count description-set) count)
           do (setf (gethash (generate-description-sentence)
                             description-set)
                    t))
-    ;; Gather up the keys and format them into the description
+    ;; Gather up the keys and format them into the description.
+    ;;FIXME: Separate and save alist of id/title/desc.
     (format nil
             ;; https://gigamonkeys.com/book/a-few-format-recipes.html
             "~a token ~a (~a) by ~a ~{~#[~;~a~;~a and ~a~:;~@{~a~#[~;, and ~:;, ~]~}~]~}."
@@ -217,13 +219,15 @@ exec ros -Q -- $0 "$@"
 (defun main (&rest argv)
   (declare (ignorable argv))
   (let ((token-ids (gather-token-ids)))
-    (format t "~{~a~%~}" token-ids)
+    (with-open-file (ids-stream "token-ids" :direction :output)
+      (pprint token-ids ids-stream))
+    (ensure-directories-exist "descriptions/")
     (loop for token-id in token-ids
           do (with-open-file (description-stream (format
                                                   nil
                                                   "descriptions/~a"
                                                   token-id)
                                                  :direction :output)
-               (prin1 (generate-description token-id 10)
-                      description-stream)))))
+               (pprint (generate-description token-id 10)
+                       description-stream)))))
 ;;; vim: set ft=lisp lisp:

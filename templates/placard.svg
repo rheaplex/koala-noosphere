@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="816"
+   height="1056"
+   id="svg2"
+   version="1.1"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="placard.svg"
+   viewBox="0 0 765 990"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.80776515"
+     inkscape:cx="165.8898"
+     inkscape:cy="540.99883"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1502"
+     inkscape:window-height="991"
+     inkscape:window-x="26"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:snap-text-baseline="true"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
+    <sodipodi:guide
+       position="147.36383,839.89652"
+       orientation="1,0"
+       id="guide885"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="616.08768,839.89652"
+       orientation="1,0"
+       id="guide887"
+       inkscape:locked="false" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-62.362183)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:194.75170898;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect862"
+       width="765"
+       height="990"
+       x="-1.1606096"
+       y="62.362183" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot891"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"><flowRegion
+         id="flowRegion893"><rect
+           id="rect895"
+           width="499.97211"
+           height="424.12463"
+           x="157.18808"
+           y="333.70291" /></flowRegion><flowPara
+         id="flowPara897" /></flowRoot>
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.875;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect835-3"
+       width="573.94806"
+       height="791.55817"
+       x="95.52597"
+       y="161.5831" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:37.5px;line-height:60%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.9375"
+       x="146.5574"
+       y="276.88052"
+       id="text1084-9"><tspan
+         sodipodi:role="line"
+         x="146.5574"
+         y="276.88052"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:15.4125px;line-height:60%;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans Bold';stroke-width:0.9375"
+         id="tspan514">@TITLE</tspan></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot913-9"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:40px;line-height:0.6;font-family:'Old Standard TT';-inkscape-font-specification:'Old Standard TT';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(0.9375,0,0,0.9375,2.6953159e-8,55.310624)"><flowRegion
+         id="flowRegion915-2"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0.6;font-family:'Old Standard TT';-inkscape-font-specification:'Old Standard TT'"><rect
+           id="rect917-9"
+           width="499.97211"
+           height="465.94806"
+           x="157.18808"
+           y="328.56201"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:0.60000002;font-family:'Old Standard TT';-inkscape-font-specification:'Old Standard TT'" /></flowRegion><flowPara
+         id="flowPara929-1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:16px;line-height:0.6;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans'">@DESCRIPTION</flowPara></flowRoot>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:11.25px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans Bold';fill:#000000;stroke-width:0.9375"
+       x="196.60547"
+       y="278.59827"
+       id="text508"><tspan
+         sodipodi:role="line"
+         id="tspan506"
+         style="stroke-width:0.9375" /></text>
+  </g>
+</svg>
