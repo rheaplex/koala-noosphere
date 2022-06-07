@@ -14,14 +14,16 @@ exec ros -Q -- $0 "$@"
   (:use :cl))
 (in-package :art.rhea.koala-noosphere.gen-descriptions)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defconstant +rng-filepath+
   "/dev/urandom"
   ;;"/dev/TrueRNG0"
   )
 
 (defconstant +series-name+ "Koala Noosphere")
-(defconstant +series-date+ "2022")
-(defconstant +series-artist+ "Rhea Myers")
 
 (defconstant +num-tokens+ 16)
 
@@ -33,134 +35,190 @@ exec ros -Q -- $0 "$@"
          collect n)
    'vector))
 
-(defconstant +qualifiers+
-  (coerce
-   '(
-     "is"
-     "is maybe"
-     "is definitely"
-     "is perhaps"
-     "may be"
-     "might be"
-     "could be"
-     "might be"
-     "looks"
-     "looks as if it is"
-     "looks like it is"
-     "seems"
-     "seems to be"
-     "appears"
-     "appears to be"
-     )
-   'vector))
 
-(defconstant +properties+
-  (coerce
-   '(
-     "red" "green" "blue" "yellow" "orange" "purple" "magenta" "cyan"
-     "dark" "light" "bright" "saturated"
-     "biomorphic" "mechanistic" "rectilinear"
-     "spiky" "smooth"
-     "simple" "complex"
-     "colourful" "muted" "monochrome"
-     "convex" "concave"
-     "varied" "homogenous" "all-over"
-     "three dimensional" "two dimensional"
-     "expressive" "diagrammatic"
-     "ironic" "serious" "transgressive"
-     "formal"
-     "cute" "zany" "interesting"
-     "large" "small"
-     "tall" "short"
-     "wide" "narrow"
-     "shallow" "deep"
-     )
-   'vector))
-  
-(defconstant +property-relations+
-  (coerce
-   '(
-     ("more" "than")
-     ("less" "than")
-     ("almost as" "as")
-     #|"almost indistinguishably"
-     "complementarily" "oppositely"
-     "differently"|#
-     )
-   'vector))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Form
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconstant +form+
+  (vector
+   "red" "green" "blue" "yellow" "orange" "purple" "magenta" "cyan"
+   "brown" "grey" "silver" "gold"
+   "colourful" "muted" "monochrome"
+   "dark" "light" "bright" "saturated"
+   "neon" "plastic" "metallic" "wooden" "pixellated" "textile"
+   "blurry" "sharp" "contrasty"
+   "biomorphic" "mechanistic" "zoomorphic" "biomechanical" "rectilinear"
+   "spiky" "smooth" "sinuous"
+   "simple" "complex"
+   "convex" "concave"
+   "varied" "homogenous" "differentiated" "all-over"
+   "three dimensional" "two dimensional"
+   "sculptural" "painterly" "theatrical" "filmic"
+   "expressive" "diagrammatic"
+   "formal" "luxurious" "ad-hoc" "austere"
+   "illusionary" "tromp l'oeil"
+   "large" "small"
+   "tall" "short"
+   "wide" "narrow"
+   "shallow" "deep"
+   ))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Subject
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconstant +subject+
+  (vector
+   "geology" "geography" "meteorology" "astronomy" "transport" "energy"
+   "food" "zoology" "technology" "communication" "entertainment"
+   "science" "art history"
+   "education" "oceanography" "urbanism" "engineering" "manufacture"
+   "politics" "society" "intimacy" "violence" "justice" "choreography"
+   "culture" "subculture" "resistance" "radicalism" "economics"
+   "the human body" "history" "portrait"
+   ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Content
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconstant +content+
+  (vector
+   "ironic" "serious" "transgressive"
+   "cute" "zany" "interesting"
+   "spiritual" "materialist"
+   "socialist" "capitalist" "anti-capitalist" "anarchistic"
+   "pastoral" "revolutionary"
+   "happy" "sad" "angry" "annoying" "exciting" "calm"
+   "unsettling" "repulsive" "disgusting" "threatening" "disqueting"
+   "appealing" "enjoyable" "pleasurable" "reassuring" "erotic"
+   "tense" "relaxing" "confusing"
+   "ineffable"
+   "bathetic"
+   "sophisticated" "challenging" "childish"
+   "optimisim" "pessimism" "realism" "fantasy"
+   ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Relations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defconstant +qualifiers+
+  (vector
+   "is"
+   "is"
+   "is"
+   "is"
+   "is"
+   "is maybe"
+   "is definitely"
+   "is perhaps"
+   "may be"
+   "might be"
+   "could be"
+   "might be"
+   "looks"
+   "looks as if it is"
+   "looks like it is"
+   "seems"
+   "seems to be"
+   "appears"
+   "appears to be"
+   ))
+
+(defconstant +continuations+
+  (vector
+   "This artwork"
+   ""
+   "Furthermore it" "Moreover it" "Additionally it"
+   "As well as that,"
+   "And it"
+   ))
 
 (defconstant +neighbours+
-  (coerce
-   '(
-     "the token"
-     "a token"
-     "no tokens"
-     "none of the tokens"
-     "almost no tokens"
-     "almost none of the tokens"
-     "very few tokens"
-     "a few tokens"
-     "not very many tokens"
-     "some tokens"
-     "many tokens"
-     "very many tokens"
-     "almost all the tokens immediately"
-     "the token that is closest"
-     )
-   'vector))
+  (vector
+   "the token"
+   "a token"
+   "no tokens"
+   "none of the tokens"
+   "almost no tokens"
+   "almost none of the tokens"
+   "very few tokens"
+   "a few tokens"
+   "not very many tokens"
+   "some tokens"
+   "many tokens"
+   "very many tokens"
+   "almost all the tokens immediately"
+   "the token that is closest"
+   ))
+
+
+(defconstant +property-relations+
+  (vector
+   '("more" "than")
+   '("less" "than")
+   '("even more" "than")
+   '("even less" "than")
+   ))
 
 (defconstant +spatio-temporal-relations+
-  (coerce
-   '(
-     "above"
-     "below"
-     "left of"
-     "to the left of"
-     "right of"
-     "to the right of"
-     "behind"
-     "in front"
-     "next to"
-     "adjacent to"
-     "near to"
-     "far from"
-     "close to"
-     "before"
-     "after"
-     "following"
-     "trailing"
-     )
-   'vector))
+  (vector
+   "above"
+   "below"
+   "left of"
+   "to the left of"
+   "right of"
+   "to the right of"
+   "behind"
+   "in front"
+   "next to"
+   "adjacent to"
+   "near to"
+   "far from"
+   "close to"
+   "before"
+   "after"
+   "following"
+   "trailing"
+   ))
 
 (defconstant +subjects+
-  (coerce
-   '(
-     "it"
-     "it"
-     "it"
-     "its centre"
-     "its focal point"
-     "its narrowest part"
-     "its widest part"
-     "its base"
-     "its top"
-     "its brightest part"
-     "its darkest part"
-     )
-   'vector))
+  (vector
+   "it"
+   "it"
+   "it"
+   "its centre"
+   "its focal point"
+   "its narrowest part"
+   "its widest part"
+   "its base"
+   "its top"
+   "its brightest part"
+   "its darkest part"
+   ))
 
-(defvar *descriptions* (make-hash-table))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Randomness
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Fetch entropy from the filesystem source
 
 (defun ent (significant-bytes)
   (let ((random-bytes (make-array +id-length-bytes+
-                              :element-type '(unsigned-byte 8)
-                              :initial-element 0)))
+                                  :element-type '(unsigned-byte 8)
+                                  :initial-element 0)))
     (with-open-file (rng +rng-filepath+
                          :element-type 'unsigned-byte)
       (read-sequence random-bytes rng))
     (intbytes:octets->uint random-bytes significant-bytes)))
 
 ;; This suffers from skew, revisit.
+
 (defun ent-random-int (exclusive-upper-range)
   (mod (ent 4) exclusive-upper-range))
 
@@ -169,6 +227,11 @@ exec ros -Q -- $0 "$@"
 
 (defun ent-random-significant-bytes ()
   (ent (random-choice +significant-bytes+)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Token IDs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun gather-token-ids ()
   ;; Use a hash-table to represent a set to avoid duplicate tokens
@@ -180,7 +243,14 @@ exec ros -Q -- $0 "$@"
     (loop for key being the hash-keys of id-set
           collect key)))
 
-(defun generate-description-sentence ()
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Descriptions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defvar *descriptions* (make-hash-table))
+
+(defun generate-form ()
   (destructuring-bind
         (property-relation property-relation-comparator)
       (random-choice +property-relations+)
@@ -190,31 +260,78 @@ exec ros -Q -- $0 "$@"
             (list
              (random-choice +qualifiers+)
              property-relation
-             (random-choice +properties+)
+             (random-choice +form+)
              property-relation-comparator
              (random-choice +neighbours+)
              (random-choice +spatio-temporal-relations+)
              (random-choice +subjects+)))))
+
+(defun generate-subject ()
+  (destructuring-bind
+        (property-relation property-relation-comparator)
+      (random-choice +property-relations+)
+    ;; ~@:( capitalizes the first word only.
+    ;; ~^  adds the space only between elements.
+    (format nil "~{~a~^ ~}"
+            (list
+             (random-choice +qualifiers+)
+             property-relation
+             (random-choice +subject+)
+             property-relation-comparator
+             (random-choice +neighbours+)
+             (random-choice +spatio-temporal-relations+)
+             (random-choice +subjects+)))))
+
+(defun generate-content ()
+  (destructuring-bind
+        (property-relation property-relation-comparator)
+      (random-choice +property-relations+)
+    ;; ~@:( capitalizes the first word only.
+    ;; ~^  adds the space only between elements.
+    (format nil "~{~a~^ ~}"
+            (list
+             (random-choice +qualifiers+)
+             property-relation
+             (random-choice +content+)
+             property-relation-comparator
+             (random-choice +neighbours+)
+             (random-choice +spatio-temporal-relations+)
+             (random-choice +subjects+)))))
+
+(defun generate-property ()
+  (let ((i (ent-random-int 10)))
+    (cond
+      ((> i 5) (generate-form))
+      ((> i 2) (generate-content))
+      (t (generate-subject)))))
+
+(defun chunk-properties (properties)
+  ;; TODO
+  ;; Divide the properties up into 1..5 chunks and add starters/caps/periods.
+  )
 
 (defun generate-description (token-id count)
   ;; Use a hash-table to represent a set to avoid duplicate descriptions
   ;; FIXME: also reproduce this at the description level
   (let ((description-set (make-hash-table :test 'equal)))
     (loop while (< (hash-table-count description-set) count)
-          do (setf (gethash (generate-description-sentence)
+          do (setf (gethash (generate-property)
                             description-set)
                    t))
     ;; Gather up the keys and format them into the description.
     ;;FIXME: Separate and save alist of id/title/desc.
     (format nil
             ;; https://gigamonkeys.com/book/a-few-format-recipes.html
-            "~a token ~a (~a) by ~a ~{~#[~;~a~;~a and ~a~:;~@{~a~#[~;, and ~:;, ~]~}~]~}."
+            "~a token ~a ~{~#[~;~a~;~a and ~a~:;~@{~a~#[~;, and ~:;, ~]~}~]~}."
             +series-name+
             token-id
-            +series-date+
-            +series-artist+
             (loop for key being the hash-keys of description-set
                   collect key))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Main program entry point
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun main (&rest argv)
   (declare (ignorable argv))
@@ -230,4 +347,3 @@ exec ros -Q -- $0 "$@"
                                                  :direction :output)
                (pprint (generate-description token-id 10)
                        description-stream)))))
-;;; vim: set ft=lisp lisp:
