@@ -43,7 +43,7 @@ exec ros -Q -- $0 "$@"
 (defconstant +form+
   (vector
    "red" "green" "blue" "yellow" "orange" "purple" "magenta" "cyan"
-   "brown" "grey" "silver" "gold"
+   "brown" "grey" "pink" "brass" "silver" "gold" "chrome"
    "colourful" "muted" "monochrome"
    "dark" "light" "bright" "saturated"
    "neon" "plastic" "metallic" "wooden" "pixellated" "textile"
@@ -53,11 +53,12 @@ exec ros -Q -- $0 "$@"
    "simple" "complex"
    "convex" "concave"
    "varied" "homogenous" "differentiated" "all-over"
-   "three dimensional" "two dimensional"
-   "sculptural" "painterly" "theatrical" "filmic"
+   "three dimensional" "two dimensional" "textual"
+   "sculptural" "painterly" "theatrical" "filmic" "animated" "performance-based"
    "expressive" "diagrammatic"
    "formal" "luxurious" "ad-hoc" "austere"
    "illusionary" "tromp l'oeil"
+   "sensual" "conceptual" "material"
    "large" "small"
    "tall" "short"
    "wide" "narrow"
@@ -98,7 +99,7 @@ exec ros -Q -- $0 "$@"
    "ineffable"
    "bathetic"
    "sophisticated" "challenging" "childish"
-   "optimisim" "pessimism" "realism" "fantasy"
+   "optimistic" "pessimistic" "realistic" "fantastic"
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -107,6 +108,11 @@ exec ros -Q -- $0 "$@"
 
 (defconstant +qualifiers+
   (vector
+   "is"
+   "is"
+   "is"
+   "is"
+   "is"
    "is"
    "is"
    "is"
@@ -130,11 +136,13 @@ exec ros -Q -- $0 "$@"
 
 (defconstant +continuations+
   (vector
-   "This artwork"
-   ""
-   "Furthermore it" "Moreover it" "Additionally it"
-   "As well as that,"
-   "And it"
+   "This artwork "
+   "It "
+   "Furthermore it "
+   "Moreover it "
+   "Additionally it "
+   "As well as that, it "
+   "And it "
    ))
 
 (defconstant +neighbours+
@@ -190,6 +198,15 @@ exec ros -Q -- $0 "$@"
    "it"
    "it"
    "it"
+   "it"
+   "it"
+   "it"
+   "it"
+   "it"
+   "it"
+   "it"
+   "it"
+   "it"
    "its centre"
    "its focal point"
    "its narrowest part"
@@ -199,8 +216,6 @@ exec ros -Q -- $0 "$@"
    "its brightest part"
    "its darkest part"
    ))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Randomness
@@ -225,9 +240,22 @@ exec ros -Q -- $0 "$@"
 (defun random-choice (choices)
   (aref choices (ent-random-int (length choices))))
 
+(defun random-choices (choices n)
+  "May contain duplicate selections."
+  (loop for i below n
+        collect (random-choice choices)))
+
 (defun ent-random-significant-bytes ()
   (ent (random-choice +significant-bytes+)))
 
+(defmethod shuffle ((l list))
+  "Shuffle the list in place"
+  (let ((len (length l)))
+    (loop for i below (length l) do
+          (rotatef
+           (elt l i)
+           (elt l (ent-random-int len)))))
+  l)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Token IDs
@@ -243,14 +271,23 @@ exec ros -Q -- $0 "$@"
     (loop for key being the hash-keys of id-set
           collect key)))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Descriptions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defvar *descriptions* (make-hash-table))
 
-(defun generate-form ()
+(defmethod chunk ((l list) num-buckets)
+  "Produce a list-of-lists"
+  (let ((len (length l))
+        (buckets (make-array num-buckets :initial-element '())))
+    (loop for i below len
+          for element in l
+          do (setf (aref buckets (mod i num-buckets))
+                   (cons element (aref buckets (mod i num-buckets)))))
+    (coerce buckets 'list)))
+
+(defun property-comparison (property)
   (destructuring-bind
         (property-relation property-relation-comparator)
       (random-choice +property-relations+)
@@ -260,74 +297,66 @@ exec ros -Q -- $0 "$@"
             (list
              (random-choice +qualifiers+)
              property-relation
-             (random-choice +form+)
+             property
              property-relation-comparator
              (random-choice +neighbours+)
              (random-choice +spatio-temporal-relations+)
              (random-choice +subjects+)))))
 
-(defun generate-subject ()
-  (destructuring-bind
-        (property-relation property-relation-comparator)
-      (random-choice +property-relations+)
-    ;; ~@:( capitalizes the first word only.
-    ;; ~^  adds the space only between elements.
-    (format nil "~{~a~^ ~}"
-            (list
-             (random-choice +qualifiers+)
-             property-relation
-             (random-choice +subject+)
-             property-relation-comparator
-             (random-choice +neighbours+)
-             (random-choice +spatio-temporal-relations+)
-             (random-choice +subjects+)))))
+(defun generate-form-comparison ()
+  (property-comparison (random-choice +form+)))
 
-(defun generate-content ()
-  (destructuring-bind
-        (property-relation property-relation-comparator)
-      (random-choice +property-relations+)
-    ;; ~@:( capitalizes the first word only.
-    ;; ~^  adds the space only between elements.
-    (format nil "~{~a~^ ~}"
-            (list
-             (random-choice +qualifiers+)
-             property-relation
-             (random-choice +content+)
-             property-relation-comparator
-             (random-choice +neighbours+)
-             (random-choice +spatio-temporal-relations+)
-             (random-choice +subjects+)))))
+(defun generate-subject-comparison ()
+  (property-comparison (random-choice +subject+)))
 
-(defun generate-property ()
+(defun generate-content-comparison ()
+  (property-comparison (random-choice +content+)))
+
+(defun generate-property-comparison ()
   (let ((i (ent-random-int 10)))
     (cond
-      ((> i 5) (generate-form))
-      ((> i 2) (generate-content))
-      (t (generate-subject)))))
+      ((> i 5) (generate-form-comparison))
+      ((> i 2) (generate-content-comparison))
+      (t (generate-subject-comparison)))))
 
-(defun chunk-properties (properties)
-  ;; TODO
-  ;; Divide the properties up into 1..5 chunks and add starters/caps/periods.
-  )
+(defun chunk-property-comparisons (description-set num-chunks)
+  ;; Put the buckets in random order so that the last isn't always shortest
+  (shuffle
+   ;; Divide the randomized list of property descriptions into num-chunks lists.
+   (chunk
+    ;; Put the descriptions in random order
+    (shuffle
+     ;; Get the descriptions
+     (loop for key being the hash-keys of description-set
+           collect key))
+    num-chunks)))
 
-(defun generate-description (token-id count)
+;; Prefix and/or suffix may be ""
+
+(defun assemble-sentence (elements prefix suffix)
+  (format nil
+          ;; https://gigamonkeys.com/book/a-few-format-recipes.html
+          "~a~{~#[~;~a~;~a and ~a~:;~@{~a~#[~;, and ~:;, ~]~}~]~}~a."
+          prefix
+          elements
+          suffix))
+
+(defun generate-description (token-id count num-sentences)
   ;; Use a hash-table to represent a set to avoid duplicate descriptions
   ;; FIXME: also reproduce this at the description level
-  (let ((description-set (make-hash-table :test 'equal)))
+  (let ((description-set (make-hash-table :test 'equal))
+        (prefixes (cons (format nil "~a ~a "+series-name+ token-id)
+                        (random-choices +continuations+
+                                        (1- num-sentences)))))
     (loop while (< (hash-table-count description-set) count)
-          do (setf (gethash (generate-property)
+          do (setf (gethash (generate-property-comparison)
                             description-set)
                    t))
-    ;; Gather up the keys and format them into the description.
-    ;;FIXME: Separate and save alist of id/title/desc.
-    (format nil
-            ;; https://gigamonkeys.com/book/a-few-format-recipes.html
-            "~a token ~a ~{~#[~;~a~;~a and ~a~:;~@{~a~#[~;, and ~:;, ~]~}~]~}."
-            +series-name+
-            token-id
-            (loop for key being the hash-keys of description-set
-                  collect key))))
-
+    (loop for prefix in prefixes
+          for chunk in (chunk-property-comparisons description-set
+                                                   num-sentences)
+          collect (assemble-sentence chunk prefix "") into sentences
+          finally (return (format nil "~{~a~^~%~}" sentences)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main program entry point
@@ -345,5 +374,9 @@ exec ros -Q -- $0 "$@"
                                                   "descriptions/~a"
                                                   token-id)
                                                  :direction :output)
-               (pprint (generate-description token-id 10)
-                       description-stream)))))
+               (let* ((num-sentences (1+ (ent-random-int 4)))
+                      (description (generate-description token-id
+                                                         10
+                                                         num-sentences)))
+                 (pprint description)
+                 (pprint description description-stream))))))
