@@ -18,23 +18,16 @@ exec ros -Q -- $0 "$@"
 ;; Configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defconstant +series-name+ "Koala Noosphere")
+
 (defconstant +rng-filepath+
   "/dev/urandom"
   ;;"/dev/TrueRNG0"
   )
 
-(defconstant +series-name+ "Koala Noosphere")
+(defconstant +num-tokens+ 200)
 
-(defconstant +num-tokens+ 16)
-
-(defconstant +id-length-bytes+ 32)
-
-(defconstant +significant-bytes+
-  (coerce
-   (loop for n from 1 upto +id-length-bytes+
-         collect n)
-   'vector))
-
+(defconstant +id-max+ 666)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Form
@@ -174,7 +167,7 @@ exec ros -Q -- $0 "$@"
 
 (defconstant +spatio-temporal-relations+
   (vector
-   "above"
+   #|"above"
    "below"
    "left of"
    "to the left of"
@@ -187,10 +180,17 @@ exec ros -Q -- $0 "$@"
    "near to"
    "far from"
    "close to"
+   "trailing"|#
    "before"
    "after"
+   "preceding"
    "following"
-   "trailing"
+   "around the same time as"
+   "inspired by"
+   "inspiring"
+   "influenced by"
+   "influencing"
+   "working through the same themes as"
    ))
 
 (defconstant +subjects+
@@ -224,7 +224,7 @@ exec ros -Q -- $0 "$@"
 ;; Fetch entropy from the filesystem source
 
 (defun ent (significant-bytes)
-  (let ((random-bytes (make-array +id-length-bytes+
+  (let ((random-bytes (make-array significant-bytes
                                   :element-type '(unsigned-byte 8)
                                   :initial-element 0)))
     (with-open-file (rng +rng-filepath+
@@ -245,9 +245,6 @@ exec ros -Q -- $0 "$@"
   (loop for i below n
         collect (random-choice choices)))
 
-(defun ent-random-significant-bytes ()
-  (ent (random-choice +significant-bytes+)))
-
 (defmethod shuffle ((l list))
   "Shuffle the list in place"
   (let ((len (length l)))
@@ -265,7 +262,7 @@ exec ros -Q -- $0 "$@"
   ;; Use a hash-table to represent a set to avoid duplicate tokens
   (let ((id-set (make-hash-table :test 'equalp)))
     (loop while (< (hash-table-count id-set) +num-tokens+)
-          do (setf (gethash (ent-random-significant-bytes) id-set)
+          do (setf (gethash (ent-random-int +id-max+) id-set)
                    t))
     ;; Gather up and return the keys
     (loop for key being the hash-keys of id-set
@@ -341,11 +338,32 @@ exec ros -Q -- $0 "$@"
           elements
           suffix))
 
+(defun generate-reference (token-id)
+  (random-choice (vector
+		  (format nil "This ~a ~a "
+			  (random-choice #("striking" "engaging" "confident"
+					   "understated"))
+			  (random-choice #("piece" "artwork" "masterpiece")))
+		  (format nil "This ~a, ~a the series ~a, "
+			  (random-choice #("piece" "artwork" "masterpiece"))
+			  (random-choice #("from" "part of"
+					   "produced as part of the series"))
+			  +series-name+)
+		  (format nil "This ~a from ~a "
+			  (random-choice #("piece" "artwork" "masterpiece"))
+			  +series-name+)
+		  (format nil "K-~a " token-id)
+		  (format nil "~a other works in the series, K-~a "
+			  (random-choice #("Like" "Unlike"
+					   "Like most" "Unlike most"
+					   "In contrast to" "Similarly to"))
+			  token-id))))
+
 (defun generate-description (token-id count num-sentences)
   ;; Use a hash-table to represent a set to avoid duplicate descriptions
   ;; FIXME: also reproduce this at the description level
   (let ((description-set (make-hash-table :test 'equal))
-        (prefixes (cons (format nil "~a ~a "+series-name+ token-id)
+        (prefixes (cons (generate-reference token-id)
                         (random-choices +continuations+
                                         (1- num-sentences)))))
     (loop while (< (hash-table-count description-set) count)
@@ -374,9 +392,9 @@ exec ros -Q -- $0 "$@"
                                                   "descriptions/~a"
                                                   token-id)
                                                  :direction :output)
-               (let* ((num-sentences (1+ (ent-random-int 4)))
+               (let* ((num-sentences (1+ (ent-random-int 5)))
                       (description (generate-description token-id
                                                          10
                                                          num-sentences)))
-                 (pprint description)
+                 (format t "~a~%~a~%~%" token-id description)
                  (pprint description description-stream))))))

@@ -6,59 +6,87 @@ exec ros -Q -- $0 "$@"
 
 (progn ;;init forms
   (ros:ensure-asdf)
-  (ql:quickload :cl-intbytes :silent t)
-  (ql:quickload :cl-ppcre :silent t)
+  ;; cl-pdf-parser is for EXTENDED-ASCII-P
+  (ql:quickload '(:cl-pdf :cl-pdf-parser :cl-typesetting) :silent t)
   )
 
-(defpackage :art.rhea.koala-noosphere.gen-svg
-  (:use :cl))
-(in-package :art.rhea.koala-noosphere.gen-svg)
+(defpackage :art.rhea.koala-noosphere.gen-images
+  (:use :cl :cl-typesetting))
+(in-package :art.rhea.koala-noosphere.gen-images)
 
 (defconstant +series-name+ "Koala Noosphere")
-(defconstant +series-date+ "2022")
+(defconstant +series-date+ "2025")
 (defconstant +series-artist+ "Rhea Myers")
 
-(defun generate-svg (svg-template token-id)
-  (let* ((title (format nil
-                        "~a ~a ~a ~a"
-                        +series-name+
-                        token-id
-                        +series-date+
-                        +series-artist+))
+(defconstant +font-size+ 18)
+(defconstant +line-height+ 21.6)
+(defconstant +page-width+ 720)
+(defconstant +page-height+ 720) ;;1280)
+(defconstant +page-x+ 90)
+(defconstant +page-y+ 90) ;; 70
+(defconstant +padding+ 36)
+(defconstant +stroke-width+ 0.5)
+(defconstant +dpi+ 600)
+
+(defun generate-pdf (token-id)
+  (let* ((title (format nil "K-~a" token-id))
          (description (with-open-file (description-stream
                                        (format nil "descriptions/~a" token-id))
                         (read description-stream)))
-         (template-with-title (ppcre:regex-replace "@TITLE"
-                                                   svg-template
-                                                   title))
-         (template-with-title-and-desc (ppcre:regex-replace "@DESCRIPTION"
-                                                            template-with-title
-                                                            description)))
-    (with-open-file (svg-stream (format nil "images/~a.svg" token-id)
-                                :direction :output)
-      (princ template-with-title-and-desc svg-stream))))
-
-(defun generate-pdf (token-id)
-  (uiop:run-program (list "inkscape"
-                          (format nil "images/~a.svg" token-id)
-                          (format nil "--export-pdf=images/~a.pdf"
-                                  token-id))))
+	 (description-lines (loop for i = 0 then (1+ j)
+				  as j = (position #\Newline description :start i)
+				  collect (subseq description i j)
+				  while j))
+	 (file (merge-pathnames (format nil "~a.pdf" token-id) "images/")))
+    (format t "K-~a~%" token-id)
+    (tt:with-document (:title title :author +series-artist+)
+      (let ((content
+	      (tt:compile-text
+	       ()
+	       (tt:paragraph (:font "Helvetica-Bold" :font-size +font-size+)
+			     +series-artist+)
+	       (tt:paragraph (:font "Helvetica" :font-size +font-size+
+			      :top-margin +line-height+)
+			     (tt:with-style
+				 (:font "Helvetica-Oblique")
+			       title)
+			     ", " +series-date+)
+	       (tt:paragraph (:font "Helvetica" :font-size +font-size+
+			      :top-margin +line-height+			      
+			      :bottom-margin +line-height+)
+			     "From the series "
+			     (tt:with-style
+				 (:font "Helvetica-Oblique")
+			       +series-name+))
+	       (dolist (desc description-lines)
+		 (tt:paragraph (:font "Helvetica" :font-size +font-size+)
+			       desc)))))
+	(pdf:with-saved-state
+	    (pdf:set-line-width +stroke-width+)
+          (pdf:set-gray-stroke 0)
+          (pdf:basic-rect (- +page-x+ +padding+)
+			  (- +page-y+ +padding+)
+			  (- (+ +page-width+ (* +padding+ 2)) (* +page-x+ 2))
+			  (- +page-height+ +page-y+))
+          (pdf:stroke))
+	(tt:draw-pages content :size (cons +page-width+ +page-height+)
+			       :margins (vector +page-x+ +page-y+ +page-x+ +page-y+))
+	(when pdf:*page* (typeset:finalize-page pdf:*page*))
+	(tt:write-document file)))))
 
 (defun generate-png (token-id)
-  (uiop:run-program (list "inkscape"
-                          (format nil "images/~a.svg" token-id)
-                          "--export-dpi=600"
-                          (format nil "--export-png=images/~a.png"
-                                  token-id))))
+  (uiop:run-program (list "pdftocairo"
+                          "-singlefile" "-png" "-r" (format nil "~a" +dpi+)
+                          (format nil "images/~a.pdf" token-id)
+			  (format nil "images/~a" token-id))))
 
 (defun main (&rest argv)
   (declare (ignorable argv))
+  (setf (cdr (assoc :american cl-tt-hyph::*language-trie-alist*))
+	(make-instance 'cl-tt-hyph::hyphen-trie :language :american))
   (let ((token-ids (with-open-file (ids-stream "token-ids")
-                     (read ids-stream)))
-        (svg-template (uiop:read-file-string "templates/placard.svg")))
+                     (read ids-stream))))
     (ensure-directories-exist "images/")
     (loop for token-id in token-ids
-          do (generate-svg svg-template token-id)
           do (generate-pdf token-id)
           do (generate-png token-id))))
-;;; vim: set ft=lisp lisp:
