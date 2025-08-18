@@ -21,13 +21,46 @@ exec ros -Q -- $0 "$@"
 (defconstant +font-size+ 18)
 (defconstant +line-height+ 21.6)
 (defconstant +page-width+ 720)
-(defconstant +page-height+ 720) ;;1280)
+(defconstant +page-height+ 1280)
 (defconstant +page-x+ 90)
 (defconstant +page-y+ 90) ;; 70
 (defconstant +padding+ 36)
+(defconstant +paragraph-space+ (/ +font-size+ 4))
+(defconstant +column-width+ (- +page-width+ (* 2 (+ +page-x+ +padding+))))
 (defconstant +stroke-width+ 0.5)
 (defconstant +dpi+ 600)
 
+(defun make-content (title description-lines)
+  (tt:compile-text
+   ()
+   (tt:paragraph (:font "Helvetica-Bold"
+		  :font-size +font-size+)
+		 +series-artist+)
+   (tt:paragraph (:font "Helvetica" :font-size +font-size+
+		  :top-margin +line-height+)
+		 (tt:with-style
+		     (:font "Helvetica-Oblique")
+		   title)
+		 ", " +series-date+)
+   (tt:paragraph (:font "Helvetica" :font-size +font-size+
+		  :top-margin +line-height+			      
+		  :bottom-margin +line-height+)
+		 "From the series "
+		 (tt:with-style
+		     (:font "Helvetica-Oblique")
+		   +series-name+))
+   (dolist (desc description-lines)
+     (tt:paragraph (:font "Helvetica"
+		    :font-size +font-size+
+		    :bottom-margin +paragraph-space+)
+		   desc))))
+
+(defun content-height (title description-lines)
+  (multiple-value-bind (boxes remaining)
+      (tt::fit-lines (make-content title description-lines) +column-width+ +page-height+)
+    (declare (ignore boxes))
+    (- +page-height+ remaining)))
+  
 (defun generate-pdf (token-id)
   (let* ((title (format nil "K-~a" token-id))
          (description (with-open-file (description-stream
@@ -40,37 +73,24 @@ exec ros -Q -- $0 "$@"
 	 (file (merge-pathnames (format nil "~a.pdf" token-id) "images/")))
     (format t "K-~a~%" token-id)
     (tt:with-document (:title title :author +series-artist+)
-      (let ((content
-	      (tt:compile-text
-	       ()
-	       (tt:paragraph (:font "Helvetica-Bold" :font-size +font-size+)
-			     +series-artist+)
-	       (tt:paragraph (:font "Helvetica" :font-size +font-size+
-			      :top-margin +line-height+)
-			     (tt:with-style
-				 (:font "Helvetica-Oblique")
-			       title)
-			     ", " +series-date+)
-	       (tt:paragraph (:font "Helvetica" :font-size +font-size+
-			      :top-margin +line-height+			      
-			      :bottom-margin +line-height+)
-			     "From the series "
-			     (tt:with-style
-				 (:font "Helvetica-Oblique")
-			       +series-name+))
-	       (dolist (desc description-lines)
-		 (tt:paragraph (:font "Helvetica" :font-size +font-size+)
-			       desc)))))
+      (let* ((content (make-content title description-lines))
+	     (actual-height (content-height title description-lines))
+	     (actual-y-padding (/ (- +page-height+ actual-height) 2)))
 	(pdf:with-saved-state
 	    (pdf:set-line-width +stroke-width+)
           (pdf:set-gray-stroke 0)
+	  ;;FIXME: not quite right.
           (pdf:basic-rect (- +page-x+ +padding+)
-			  (- +page-y+ +padding+)
-			  (- (+ +page-width+ (* +padding+ 2)) (* +page-x+ 2))
-			  (- +page-height+ +page-y+))
+			  (+ actual-y-padding)
+			  (- (+ +page-width+ (* +padding+ 2))
+			     (* +page-x+ 2))
+			  (+ actual-height +padding+))
           (pdf:stroke))
 	(tt:draw-pages content :size (cons +page-width+ +page-height+)
-			       :margins (vector +page-x+ +page-y+ +page-x+ +page-y+))
+			       :margins (vector +page-x+
+						actual-y-padding
+						+page-x+
+						+page-y+))
 	(when pdf:*page* (typeset:finalize-page pdf:*page*))
 	(tt:write-document file)))))
 
